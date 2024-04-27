@@ -5,12 +5,12 @@ cd ..
 cd training
 pretrained_model_name_or_path='stabilityai/stable-diffusion-2'
 pretrained_vae_name_or_path='stabilityai/sdxl-vae'
-gt_datapath='/home/wangziyi/rec/Accelerator-Simple-Template/DIR-D/training/gt'
-rgb_datapath='/home/wangziyi/rec/Accelerator-Simple-Template/DIR-D/training/input'
-train_rgb_list='/home/wangziyi/rec/Accelerator-Simple-Template/DIR-D/filelist_input.txt'
-train_depth_list='/home/wangziyi/rec/Accelerator-Simple-Template/DIR-D/filelist_gt.txt'
+gt_datapath='/mnt/disk1/wangziyi/DIR-D/training/gt'
+rgb_datapath='/mnt/disk1/wangziyi/DIR-D/training/input'
+train_rgb_list='/mnt/disk1/wangziyi/DIR-D/filelist_input.txt'
+train_depth_list='/mnt/disk1/wangziyi/DIR-D/filelist_gt.txt'
 vallist='None'
-output_dir='/mnt/disk1/wangziyi/RecDiff_out'
+output_dir='/mnt/disk1/wangziyi/RecDiff_out_with_ema'
 train_batch_size=1
 num_train_epochs=200
 gradient_accumulation_steps=8
@@ -37,11 +37,9 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 accelerate launch --mixed_precision="fp16" 
                   --gradient_checkpointing \
                   --enable_xformers_memory_efficient_attention \
                   --checkpointing_steps 1000 \
-                  --resume_from_checkpoint "latest" \
-                  --use_ema \
-                  --pretrained_vae_name_or_path $pretrained_vae_name_or_path
-
-                  
+                  --pretrained_vae_name_or_path $pretrained_vae_name_or_path \
+                  --use_ema
+                #   --resume_from_checkpoint "latest" \                  
 }
 
 
