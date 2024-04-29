@@ -4,15 +4,15 @@ LAUNCH_TRAINING(){
 cd .. 
 cd training
 pretrained_model_name_or_path='stabilityai/stable-diffusion-2'
-pretrained_vae_name_or_path='stabilityai/sdxl-vae'
-gt_datapath='/mnt/disk1/wangziyi/DIR-D/training/gt'
-rgb_datapath='/mnt/disk1/wangziyi/DIR-D/training/input'
-train_rgb_list='/mnt/disk1/wangziyi/DIR-D/filelist_input.txt'
-train_depth_list='/mnt/disk1/wangziyi/DIR-D/filelist_gt.txt'
+pretrained_vae_name_or_path='None'
+gt_datapath='/mnt/data/wangziyi/DIR-D/training/gt'
+rgb_datapath='/mnt/data/wangziyi/DIR-D/training/input'
+train_rgb_list='/mnt/data/wangziyi/DIR-D/filelist_input.txt'
+train_depth_list='/mnt/data/wangziyi/DIR-D/filelist_gt.txt'
 vallist='None'
-output_dir='/mnt/disk1/wangziyi/RecDiff_out_with_ema'
-train_batch_size=1
-num_train_epochs=200
+output_dir='/mnt/data/wangziyi/RecDiff_out_8'
+train_batch_size=4
+num_train_epochs=1500
 gradient_accumulation_steps=8
 learning_rate=1e-5
 lr_warmup_steps=0
