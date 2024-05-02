@@ -61,7 +61,7 @@ logger = get_logger(__name__, log_level="INFO")
 
 
 def log_validation(vae,text_encoder,tokenizer,unet,args,accelerator,weight_dtype,scheduler,epoch,
-                   input_image_path="/home/wangziyi/rec/Accelerator-Simple-Template/DIR-D/testing/input/00001.jpg"
+                   input_image_path="/mnt/contest_ceph/tailor/DIR-D/testing/input/00001.jpg"
                    ):
     # TODO: denoise_steps
     denoise_steps = 50
@@ -856,19 +856,21 @@ def main():
                 # Store the UNet parameters temporarily and load the EMA parameters to perform inference.
                 ema_unet.store(unet.parameters())
                 ema_unet.copy_to(unet.parameters())
-                
-            # validation inference here
-            log_validation(
-                vae=vae,
-                text_encoder=text_encoder,
-                tokenizer=tokenizer,
-                unet=unet,
-                args=args,
-                accelerator=accelerator,
-                weight_dtype=weight_dtype,
-                scheduler=noise_scheduler,
-                epoch=epoch,
-            )
+            
+            if epoch % 20 == 0:
+                # validation inference here
+                log_validation(
+                    vae=vae,
+                    text_encoder=text_encoder,
+                    tokenizer=tokenizer,
+                    unet=unet,
+                    args=args,
+                    accelerator=accelerator,
+                    weight_dtype=weight_dtype,
+                    scheduler=noise_scheduler,
+                    epoch=epoch,
+                )
+            
             
             if args.use_ema:
                 # Switch back to the original UNet parameters.
