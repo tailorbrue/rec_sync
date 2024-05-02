@@ -4,13 +4,13 @@ LAUNCH_TRAINING(){
 cd .. 
 cd training
 pretrained_model_name_or_path='stabilityai/stable-diffusion-2'
-pretrained_vae_name_or_path='None'
-gt_datapath='/mnt/data/wangziyi/DIR-D/training/gt'
-rgb_datapath='/mnt/data/wangziyi/DIR-D/training/input'
-train_rgb_list='/mnt/data/wangziyi/DIR-D/filelist_input.txt'
-train_depth_list='/mnt/data/wangziyi/DIR-D/filelist_gt.txt'
+pretrained_vae_name_or_path='/mnt/contest_ceph/tailor/kl-f4/model.ckpt'
+gt_datapath='/mnt/contest_ceph/tailor/DIR-D/training/gt'
+rgb_datapath='/mnt/contest_ceph/tailor/DIR-D/training/input'
+train_rgb_list='/mnt/contest_ceph/tailor/DIR-D/filelist_input.txt'
+train_depth_list='/mnt/contest_ceph/tailor/DIR-D/filelist_gt.txt'
 vallist='None'
-output_dir='/mnt/data/wangziyi/RecDiff_out_8'
+output_dir='/mnt/contest_ceph/tailor/RecDiff_out_4'
 train_batch_size=4
 num_train_epochs=1500
 gradient_accumulation_steps=8
@@ -20,7 +20,7 @@ dataloader_num_workers=4
 tracker_project_name='DIR-D'
 
 
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 accelerate launch --mixed_precision="fp16"  --multi_gpu depth2image_trainer.py \
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 accelerate launch --mixed_precision="fp16"  --main_process_port 0 --multi_gpu depth2image_trainer.py  \
                   --pretrained_model_name_or_path $pretrained_model_name_or_path \
                   --gt_datapath $gt_datapath \
                   --rgb_datapath $rgb_datapath\
@@ -35,11 +35,11 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 accelerate launch --mixed_precision="fp16" 
                   --dataloader_num_workers $dataloader_num_workers \
                   --tracker_project_name $tracker_project_name \
                   --gradient_checkpointing \
-                  --enable_xformers_memory_efficient_attention \
                   --checkpointing_steps 1000 \
                   --pretrained_vae_name_or_path $pretrained_vae_name_or_path \
                   --use_ema
-                #   --resume_from_checkpoint "latest" \                  
+                #   --resume_from_checkpoint "latest" \           
+                  # --enable_xformers_memory_efficient_attention \       
 }
 
 

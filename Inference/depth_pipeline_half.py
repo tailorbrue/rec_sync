@@ -282,6 +282,8 @@ class DepthEstimationPipeline(DiffusionPipeline):
                 unet_input, t, encoder_hidden_states=batch_empty_text_embed
             ).sample  # [B, 4, h, w]
 
+            noise_pred = noise_pred[:, 1:, :, :]
+
             # compute the previous noisy sample x_t -> x_t-1
             depth_latent = self.scheduler.step(noise_pred, t, depth_latent).prev_sample
         

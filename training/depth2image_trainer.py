@@ -61,7 +61,7 @@ logger = get_logger(__name__, log_level="INFO")
 
 
 def log_validation(vae,text_encoder,tokenizer,unet,args,accelerator,weight_dtype,scheduler,epoch,
-                   input_image_path="/home/wangziyi/rec/Accelerator-Simple-Template/DIR-D/testing/input/00001.jpg"
+                   input_image_path="/mnt/contest_ceph/tailor/DIR-D/testing/input/00001.jpg"
                    ):
     # TODO: denoise_steps
     denoise_steps = 50
@@ -463,13 +463,13 @@ def main():
         return [deepspeed_plugin.zero3_init_context_manager(enable=False)]
 
     with ContextManagers(deepspeed_zero_init_disabled_context_manager()):
-        vae = AutoencoderKL.from_pretrained(args.pretrained_model_name_or_path,
-                                            subfolder='vae')
+        vae = AutoencoderKL.from_single_file(args.pretrained_vae_name_or_path, config_file='/mnt/contest_ceph/tailor/kl-f4/config_tempelate.yaml', image_size=256)
+
         text_encoder = CLIPTextModel.from_pretrained(args.pretrained_model_name_or_path,
                                                      subfolder='text_encoder')
         
         unet = UNet2DConditionModel.from_pretrained(args.pretrained_model_name_or_path,subfolder="unet",
-                                                    in_channels=8, sample_size=(48, 64),
+                                                    in_channels=6, sample_size=(96, 128),
                                                     low_cpu_mem_usage=False,
                                                     ignore_mismatched_sizes=True)
 
@@ -481,7 +481,7 @@ def main():
     # using EMA
     if args.use_ema:
         ema_unet = UNet2DConditionModel.from_pretrained(args.pretrained_model_name_or_path,subfolder="unet",
-                                                    in_channels=8, sample_size=(48, 64),
+                                                    in_channels=6, sample_size=(96, 128),
                                                     low_cpu_mem_usage=False,
                                                     ignore_mismatched_sizes=True)
         ema_unet = EMAModel(ema_unet.parameters(), model_cls=UNet2DConditionModel, model_config=ema_unet.config)
@@ -856,19 +856,21 @@ def main():
                 # Store the UNet parameters temporarily and load the EMA parameters to perform inference.
                 ema_unet.store(unet.parameters())
                 ema_unet.copy_to(unet.parameters())
-                
-            # validation inference here
-            log_validation(
-                vae=vae,
-                text_encoder=text_encoder,
-                tokenizer=tokenizer,
-                unet=unet,
-                args=args,
-                accelerator=accelerator,
-                weight_dtype=weight_dtype,
-                scheduler=noise_scheduler,
-                epoch=epoch,
-            )
+            
+            if epoch % 20 == 0:
+                # validation inference here
+                log_validation(
+                    vae=vae,
+                    text_encoder=text_encoder,
+                    tokenizer=tokenizer,
+                    unet=unet,
+                    args=args,
+                    accelerator=accelerator,
+                    weight_dtype=weight_dtype,
+                    scheduler=noise_scheduler,
+                    epoch=epoch,
+                )
+            
             
             if args.use_ema:
                 # Switch back to the original UNet parameters.
