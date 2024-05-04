@@ -5,12 +5,12 @@ cd ..
 cd training
 pretrained_model_name_or_path='stabilityai/stable-diffusion-2'
 pretrained_vae_name_or_path='None'
-gt_datapath='/mnt/contest_ceph/tailor/DIR-D/training/gt'
-rgb_datapath='/mnt/contest_ceph/tailor/DIR-D/training/input'
-train_rgb_list='/mnt/contest_ceph/tailor/DIR-D/filelist_input.txt'
-train_depth_list='/mnt/contest_ceph/tailor/DIR-D/filelist_gt.txt'
+gt_datapath='/root/DIR-D/training/flow/'
+rgb_datapath='/root/DIR-D/training/input/'
+train_rgb_list='/root/DIR-D/filelist_input_sorted.txt'
+train_depth_list='/root/DIR-D/filelist_flow.txt'
 vallist='None'
-output_dir='/mnt/contest_ceph/tailor/RecDiff_out_8'
+output_dir='/root/rec_flow/output'
 train_batch_size=4
 num_train_epochs=1500
 gradient_accumulation_steps=8
@@ -20,7 +20,7 @@ dataloader_num_workers=4
 tracker_project_name='DIR-D'
 
 
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 accelerate launch --mixed_precision="fp16"  --multi_gpu depth2image_trainer.py \
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 accelerate launch --mixed_precision="fp16" --multi_gpu depth2image_trainer.py \
                   --pretrained_model_name_or_path $pretrained_model_name_or_path \
                   --gt_datapath $gt_datapath \
                   --rgb_datapath $rgb_datapath\
@@ -38,8 +38,8 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 accelerate launch --mixed_precision="fp16" 
                   --checkpointing_steps 1000 \
                   --pretrained_vae_name_or_path $pretrained_vae_name_or_path \
                   --use_ema \
-                  --resume_from_checkpoint "latest" \           
-                  # --enable_xformers_memory_efficient_attention \       
+                #   --resume_from_checkpoint "latest" \
+                  # --enable_xformers_memory_efficient_attention \
 }
 
 

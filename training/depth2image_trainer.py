@@ -2,7 +2,7 @@
 import argparse
 import math
 import random
-
+from torchvision.utils import save_image
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -61,13 +61,13 @@ logger = get_logger(__name__, log_level="INFO")
 
 
 def log_validation(vae,text_encoder,tokenizer,unet,args,accelerator,weight_dtype,scheduler,epoch,
-                   input_image_path="/mnt/contest_ceph/tailor/DIR-D/testing/input/00001.jpg"
+                   input_image_path="/root/DIR-D/testing/input/00001.jpg",
                    ):
     # TODO: denoise_steps
     denoise_steps = 50
     ensemble_size = 1
-    processing_res = 512
-    match_input_res = False
+    # processing_res = 512
+    # match_input_res = False
     batch_size = 1
     color_map="Spectral"
     
@@ -95,34 +95,35 @@ def log_validation(vae,text_encoder,tokenizer,unet,args,accelerator,weight_dtype
         pipe_out = pipeline(input_image_pil,
              denosing_steps=denoise_steps,
              ensemble_size= ensemble_size,
-             processing_res = processing_res,
-             match_input_res = match_input_res,
+            #  processing_res = processing_res,
+            #  match_input_res = match_input_res,
              batch_size = batch_size,
              color_map = color_map,
              show_progress_bar = True,
              )
 
-        depth_pred: np.ndarray = pipe_out.depth_np
-        depth_colored: Image.Image = pipe_out.depth_colored
+        depth_pred = pipe_out.depth_np # flow
+        depth_colored = pipe_out.depth_colored # warpped
         
         # savd as npy
         rgb_name_base = os.path.splitext(os.path.basename(input_image_path))[0]
         pred_name_base = rgb_name_base + "_pred"
         
-        npy_save_path = os.path.join(args.output_dir, f"{pred_name_base}.npy")
-        if os.path.exists(npy_save_path):
-            logging.warning(f"Existing file: '{npy_save_path}' will be overwritten")
-        np.save(npy_save_path, depth_pred)
+        # npy_save_path = os.path.join(args.output_dir, f"{pred_name_base}.npy")
+        # if os.path.exists(npy_save_path):
+        #     logging.warning(f"Existing file: '{npy_save_path}' will be overwritten")
+        # np.save(npy_save_path, depth_pred)
 
         # Colorize
         colored_save_path = os.path.join(
-            args.output_dir, f"{pred_name_base}_{epoch}_colored.png"
+            args.output_dir, f"{pred_name_base}_{epoch}_warpped.png"
         )
         if os.path.exists(colored_save_path):
             logging.warning(
                 f"Existing file: '{colored_save_path}' will be overwritten"
             )
-        depth_colored.save(colored_save_path)
+        save_image(depth_colored, colored_save_path)
+        # depth_colored.save(colored_save_path)
         
         
         del depth_colored
@@ -710,7 +711,8 @@ def main():
                 # convert the images and the depths into lantent space.
                 left_image_data = batch['img_left']
                 left_disparity = batch['gt_disp']
-                left_disparity = torch.permute(left_disparity, (0, 3, 1, 2))
+                # left_disparity = torch.permute(left_disparity, (0, 3, 1, 2))
+
                 # print(left_image_data.shape)
                 # print(left_disparity.shape)
                 # left_disp_single = left_disparity.unsqueeze(0)

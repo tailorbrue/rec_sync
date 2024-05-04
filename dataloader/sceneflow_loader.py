@@ -4,6 +4,7 @@ from __future__ import print_function
 
 from torch.utils.data import Dataset
 import os
+import torch
 
 from dataloader.utils import read_text_lines
 from dataloader.file_io import read_disp,read_img
@@ -70,7 +71,8 @@ class StereoDataset(Dataset):
 
             # left_img, right_img = splits[:2]
             # gt_disp = None if len(splits) == 2 else splits[2]
-            assert line_rgb == line_gt, "unmatched data pairs"
+
+            assert line_rgb.split(".")[0] == line_gt.split(".")[0], "unmatched data pairs"
 
             sample = dict()
 
@@ -93,8 +95,15 @@ class StereoDataset(Dataset):
     
     
         # GT disparity of subset if negative, finalpass and cleanpass is positive
-        subset = True if 'subset' in self.dataset_name else False
-        sample['gt_disp'] = read_disp(sample_path['disp'], subset=subset)  # [H, W]
+        # subset = True if 'subset' in self.dataset_name else False
+        # sample['gt_disp'] = read_disp(sample_path['disp'], subset=subset)  # [H, W]
+        sample['gt_disp'] = torch.load(sample_path['disp']).squeeze(0) # (2, 384, 512)
+        zeros = torch.zeros_like(sample['gt_disp'])
+        zeros = zeros.chunk(2, dim=0)[0]
+        sample['gt_disp'] = torch.cat((sample['gt_disp'], zeros), dim=0)
+        sample['gt_disp'] = sample['gt_disp'] / 50 # vital factor
+        # assert sample['gt_disp'].shape[0] == 3, "scenefolw_loader, wrong cat"
+        # sample['gt_disp'] = sample['gt_disp'].unsqueeze(0)
 
         if self.mode=='test':
             # img_left = transform.resize(sample['img_left'], [576,960], preserve_range=True)

@@ -28,10 +28,10 @@ class ToTensor(object):
         # sample['img_right'] = torch.from_numpy(right) / 255.
 
         # disp = np.expand_dims(sample['disp'], axis=0)  # [1, H, W]
-        if 'gt_disp' in sample.keys():
+        # if 'gt_disp' in sample.keys():
             
-            disp = sample['gt_disp']  # [H, W]
-            sample['gt_disp'] = torch.from_numpy(disp)
+        #     disp = sample['gt_disp']  # [H, W]
+        #     sample['gt_disp'] = torch.from_numpy(disp)
 
         return sample
 
